@@ -210,6 +210,7 @@ function EnemyFrames.InitEnemyData(name)
     EnemyFrames.EnemyData[name].Flag        = false
     EnemyFrames.EnemyData[name].Class       = "Warrior"
     EnemyFrames.EnemyData[name].Updated     = 0
+    EnemyFrames.EnemyData[name].LastScan    = 0
 end
 
 -- Grab data from the specified unit, does nothing if the unit is not an enemy player
