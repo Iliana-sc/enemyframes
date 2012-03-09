@@ -38,6 +38,7 @@ end
 -- Keep track of EFC in WSG
 function EnemyFrames.ParseFlagEvent(msg)
     local myfaction = UnitFactionGroup("player")
+    local spos, epos, faction, pname
 
     -- Flag picked up
     spos, epos, faction, pname = string.find(msg, EnemyFrames.FlagPicked)
@@ -180,7 +181,7 @@ function EnemyFrames.GatherUnitData(unit)
     end
     EnemyFrames.PrintDebug("Found a useful unit to gather data from: " .. unit, "TargetData")
     
-    name = UnitName(unit)
+    local name = UnitName(unit)
     EnemyFrames.InitEnemyData(name)
     EnemyFrames.EnemyData[name].Health      = UnitHealth(unit)
     EnemyFrames.EnemyData[name].HealthMax   = UnitHealthMax(unit)
