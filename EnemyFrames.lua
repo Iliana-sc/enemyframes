@@ -96,7 +96,7 @@ If anyone knows a better way I'd gladly hear about it
 ]]--
 function EnemyFrames.VerifyZoneEvent()
     EnemyFrames.PrintDebug("PLAYER_ENTERING_WORLD", "Zone")
-    EnemyFrames.ZoneTimer = 5.0
+    EnemyFrames.ZoneTimer = 3.0
 end
 
 function EnemyFrames.VerifyZoneUpdate(delta)
