@@ -190,6 +190,7 @@ function EnemyFrames.GatherUnitData(unit)
     EnemyFrames.EnemyData[name].PowerType   = UnitPowerType(unit)
     EnemyFrames.EnemyData[name].Class       = UnitClass(unit)
     EnemyFrames.EnemyData[name].Updated     = time()
+    EnemyFrames.EnemyData[name].LastScan    = time()
 end
 
 -- loop over the target of target of target of target... etc from any
@@ -231,28 +232,35 @@ end
 
 -- Update a single unit frame
 function EnemyFrames.UpdateEnemyFrame(unit, name)
+    local UnitData = EnemyFrames.EnemyData[name]
     EnemyFrames.PrintDebug("Updating" .. unit .. ": " .. name, "DisplayUpdate")
 
-    local classcolor = RAID_CLASS_COLORS[string.upper(EnemyFrames.EnemyData[name].Class)]
-    local manacolor = ManaBarColor[EnemyFrames.EnemyData[name].PowerType]
+    -- If the frame wasnt scanned for 5 seconds we try to scan it
+    if time() - UnitData.LastScan > 5 then
+        UnitData.LastScan = time()
+        EnemyFrames.TargetScan(name)
+    end
+
+    local classcolor = RAID_CLASS_COLORS[string.upper(UnitData.Class)]
+    local manacolor = ManaBarColor[UnitData.PowerType]
 
     getglobal(unit .. "PlayerName"):SetTextColor(classcolor.r, classcolor.g, classcolor.b)
-    getglobal(unit .. "Health"):SetMinMaxValues(0, EnemyFrames.EnemyData[name].HealthMax)
-    getglobal(unit .. "Health"):SetValue(EnemyFrames.EnemyData[name].Health)
+    getglobal(unit .. "Health"):SetMinMaxValues(0, UnitData.HealthMax)
+    getglobal(unit .. "Health"):SetValue(UnitData.Health)
     getglobal(unit .. "PlayerName"):SetText(name)
     getglobal(unit .. "Power"):SetStatusBarColor(manacolor.r, manacolor.g, manacolor.b)
-    getglobal(unit .. "Power"):SetMinMaxValues(0, EnemyFrames.EnemyData[name].PowerMax)
-    getglobal(unit .. "Power"):SetValue(EnemyFrames.EnemyData[name].Power)
+    getglobal(unit .. "Power"):SetMinMaxValues(0, UnitData.PowerMax)
+    getglobal(unit .. "Power"):SetValue(UnitData.Power)
 
     -- Flag carriers get to be red
-    if EnemyFrames.EnemyData[name].Flag == true then
+    if UnitData.Flag == true then
         getglobal(unit):SetBackdropColor(1.0, 0.0, 0.0)
     else
         getglobal(unit):SetBackdropColor(0.0, 0.0, 0.0)
     end
 
     -- Frames that aren't updated get phased out
-    if EnemyFrames.EnemyData[name].Flag == false  and time() - EnemyFrames.EnemyData[name].Updated > 5 then
+    if UnitData.Flag == false  and time() - UnitData.Updated > 5 then
         getglobal(unit):SetAlpha(0.3)
     else
         getglobal(unit):SetAlpha(1.0)
