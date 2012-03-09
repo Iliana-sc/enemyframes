@@ -1,0 +1,5 @@
+## Interface: 11200
+## Title: EnemyFrames
+## DefaultState: Enabled
+## SavedVariables: EFOptions
+EnemyFrames.xml

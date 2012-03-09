@@ -1,0 +1,123 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+    <Script file="Localization.lua"/>
+    <Script file="EnemyFrames.lua"/>
+
+	<Frame name="EnemyFrames" parent="UIParent" hidden="false">
+		<Scripts>
+			<OnLoad>
+				EnemyFrames.OnLoad();
+			</OnLoad>
+            <OnEvent>
+                EnemyFrames.OnEvent(event);
+            </OnEvent>
+            <OnUpdate>
+                EnemyFrames.VerifyZoneUpdate(arg1);
+                EnemyFrames.GatherDataUpdate(arg1)
+                EnemyFrames.UnitFramesUpdate(arg1)
+                EnemyFrames.UnitsDisplayUpdate(arg1)
+            </OnUpdate>
+		</Scripts>
+	</Frame>
+
+    <!-- Individual Units -->
+    <Button name="EnemyUnitTemplate" virtual="true" hidden="true">
+        <Size>
+            <AbsDimension x="100" y="40" />
+        </Size>
+        <Backdrop bgFile="Interface\Tooltips\UI-Tooltip-Background" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
+			<EdgeSize>
+				<AbsValue val="9"/>
+			</EdgeSize>
+			<TileSize>
+				<AbsValue val="16" />
+			</TileSize>
+			<BackgroundInsets>
+				<AbsInset left="3" right="3" top="3" bottom="3"/>
+			</BackgroundInsets>
+		</Backdrop>
+        <Layers>
+            <Layer level="OVERLAY">
+                <!-- Name -->
+                <FontString name="$parentPlayerName" inherits="GameFontNormalSmall" text="PLAYERNAME">
+                    <Anchors>
+                        <Anchor point="TOP">
+                            <Offset>
+                                <AbsDimension x="0" y="-2" />
+                            </Offset>
+                        </Anchor>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+		<Frames>
+            <!-- HP bar -->
+			<StatusBar name="$parentHealth">
+				<Size>
+					<AbsDimension x="94" y="17"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOP">
+						<Offset>
+							<AbsDimension x="0" y="-13"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<BarTexture file="Interface\TargetingFrame\UI-StatusBar"/>
+				<BarColor r="0.0" g="1.0" b="0.0"/>
+			</StatusBar>
+            <!-- Power Bar -->
+			<StatusBar name="$parentPower">
+				<Size>
+					<AbsDimension x="94" y="7"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOP">
+						<Offset>
+							<AbsDimension x="0" y="-30"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<BarTexture file="Interface\TargetingFrame\UI-StatusBar"/>
+				<BarColor r="0.0" g="0.0" b="1.0"/>
+			</StatusBar>
+		</Frames>
+        <Scripts>
+            <OnLoad>
+                this:RegisterForClicks("LeftButtonUp")
+                this:SetBackdropColor(0.0, 0.0, 0.0)
+            </OnLoad>
+            <OnClick>
+                EnemyFrames.UnitClickEvent(this)
+            </OnClick>
+        </Scripts>
+    </Button>
+    
+    <!-- Dragable masterframe to contain the units -->
+    <Frame name="EnemyUnits" parent="UIParent" hidden="false" movable="true">
+        <Size>
+            <AbsDimension x="80" y="15" />
+        </Size>
+		<Anchors>
+            <Anchor point="CENTER" />
+		</Anchors>
+        <Scripts>
+            <OnLoad>this:RegisterForDrag("RightButton");</OnLoad>
+            <OnDragStart>this:StartMoving();</OnDragStart>
+            <OnDragStop>this:StopMovingOrSizing();</OnDragStop>
+        </Scripts>
+        <Layers>
+            <Layer level="OVERLAY">
+                <!-- Name -->
+                <FontString name="$parentPlayerName" inherits="GameFontNormalSmall" text="EnemyFrames">
+                    <Anchors>
+                        <Anchor point="TOP">
+                            <Offset>
+                                <AbsDimension x="0" y="-2" />
+                            </Offset>
+                        </Anchor>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+    </Frame>
+</Ui>
