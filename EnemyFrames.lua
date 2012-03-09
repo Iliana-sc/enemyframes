@@ -8,6 +8,9 @@ EnemyFrames.ZoneTimer       = nil
 EnemyFrames.MaxDisplayUnits = 10
 EnemyFrames.DebugChatFrame  = ChatFrame3
 EnemyFrames.HideUnknownUnitError = false
+EnemyFrames.VersionName     = "Alpha 3"
+EnemyFrames.Version         = 3         -- Increment for every release
+EnemyFrames.VersionWarning  = false
 
 -- Localized shit:
 EnemyFrames.FlagPicked   = "The ([^ ]+) [Ff]lag was picked up by ([^ ]+)!"
@@ -15,6 +18,7 @@ EnemyFrames.FlagCaptured = "([^ ]+) captured the ([^ ]+) [Ff]lag!"
 EnemyFrames.FlagDropped  = "The ([^ ]+) [Ff]lag was dropped by ([^ ]+)!"
 EnemyFrames.FlagReturn   = ".* was returned to .*"
 EnemyFrames.UnknownUnitError = "Unknown unit."
+EnemyFrames.VersionWarningText  = "A newer version is available."
 
 -- Debug levels
 EnemyFrames.DebugEnabled.Zone           = false  -- Debug messages about loading screens
@@ -22,6 +26,7 @@ EnemyFrames.DebugEnabled.Flags          = false  -- Debug messages about WSG fla
 EnemyFrames.DebugEnabled.TargetData     = false  -- Debug messages for getting data from target of target (of target ...)
 EnemyFrames.DebugEnabled.DisplayUpdate  = false  -- Debug messages for when a frame is updated visually
 EnemyFrames.DebugEnabled.TargetScan     = false  -- Debug messages for actively trying to target units to scan them
+EnemyFrames.DebugEnabled.AddonMessage   = false  -- Debug messages with all sent and received addon messages
 
 function EnemyFrames.Print(msg, r, g, b)
     DEFAULT_CHAT_FRAME:AddMessage("|cffff8040EnemyFrames:|r " .. msg, r, g, b)
@@ -142,6 +147,8 @@ function EnemyFrames.Init()
         EnemyFrames["EnemyUnit" .. i] = CreateFrame("Button", "EnemyUnit" .. i, EnemyUnits, "EnemyUnitTemplate");
         EnemyFrames["EnemyUnit" .. i]:SetPoint("TOPLEFT", EnemyUnits, "TOPLEFT", xoffset, yoffset);
     end
+
+    EnemyFrames.SendAddonMessage("VERSION:" .. EnemyFrames.Version .. ":" .. EnemyFrames.VersionName, "GUILD")
 end
 
 function EnemyFrames.OnEvent(event)
@@ -151,6 +158,10 @@ function EnemyFrames.OnEvent(event)
         EnemyFrames.Init()
     elseif event == "PLAYER_ENTERING_WORLD" then
         EnemyFrames.VerifyZoneEvent()
+    elseif event == "CHAT_MSG_ADDON" then
+        if arg1 == "EnemyFrames" then
+            EnemyFrames.HandleAddonMessage(arg2, arg3, arg4)
+        end
     else
         EnemyFrames.PrintError("Unhandled event: " .. event)
     end
@@ -159,11 +170,29 @@ end
 function EnemyFrames.OnLoad()
     this:RegisterEvent("CHAT_MSG_BG_SYSTEM_ALLIANCE")
     this:RegisterEvent("CHAT_MSG_BG_SYSTEM_HORDE")
+    this:RegisterEvent("CHAT_MSG_ADDON")
     this:RegisterEvent("PLAYER_LOGIN")
     this:RegisterEvent("PLAYER_ENTERING_WORLD")
 
     EnemyFrames.OriginalUIErrorsFrameOnEvent = UIErrorsFrame_OnEvent
     UIErrorsFrame_OnEvent = EnemyFrames.HookedUIErrorsFrameOnEvent
+end
+
+function EnemyFrames.HandleAddonMessage(msg, channel, sender)
+    EnemyFrames.PrintDebug("Received Addon Message from " .. sender .. "@" .. channel .. ": " ..msg, "AddonMessage")
+    if string.find(msg, "^VERSION:") then
+        local spos, epos, version, vstr = string.find(msg, "VERSION:([^:]+):([^:]+)")
+        if spos and tonumber(version) > EnemyFrames.Version and EnemyFrames.VersionWarning == false then
+            EnemyFrames.Print(EnemyFrames.VersionWarningText)
+            EnemyFrames.VersionWarning = true
+        end
+    end
+end
+
+-- SendAddonMessage wrapper to print nice debug messages
+function EnemyFrames.SendAddonMessage(msg, channel)
+    EnemyFrames.PrintDebug("Sent Addon Message to " .. channel .. ": " .. msg, "AddonMessage")
+    SendAddonMessage("EnemyFrames", msg, channel)
 end
 
 
