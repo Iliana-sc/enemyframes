@@ -231,11 +231,15 @@ end
 -- Update a single unit frame
 function EnemyFrames.UpdateEnemyFrame(unit, name)
     EnemyFrames.PrintDebug("Updating" .. unit .. ": " .. name, "DisplayUpdate")
-    classcolor = RAID_CLASS_COLORS[string.upper(EnemyFrames.EnemyData[name].Class)]
+
+    local classcolor = RAID_CLASS_COLORS[string.upper(EnemyFrames.EnemyData[name].Class)]
+    local manacolor = ManaBarColor[EnemyFrames.EnemyData[name].PowerType]
+
     getglobal(unit .. "PlayerName"):SetTextColor(classcolor.r, classcolor.g, classcolor.b)
     getglobal(unit .. "Health"):SetMinMaxValues(0, EnemyFrames.EnemyData[name].HealthMax)
     getglobal(unit .. "Health"):SetValue(EnemyFrames.EnemyData[name].Health)
     getglobal(unit .. "PlayerName"):SetText(name)
+    getglobal(unit .. "Power"):SetStatusBarColor(manacolor.r, manacolor.g, manacolor.b)
     getglobal(unit .. "Power"):SetMinMaxValues(0, EnemyFrames.EnemyData[name].PowerMax)
     getglobal(unit .. "Power"):SetValue(EnemyFrames.EnemyData[name].Power)
 

@@ -78,7 +78,6 @@
 					</Anchor>
 				</Anchors>
 				<BarTexture file="Interface\TargetingFrame\UI-StatusBar"/>
-				<BarColor r="0.0" g="0.0" b="1.0"/>
 			</StatusBar>
 		</Frames>
         <Scripts>
