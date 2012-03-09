@@ -19,6 +19,9 @@ EnemyFrames.FlagDropped  = "The ([^ ]+) [Ff]lag was dropped by ([^ ]+)!"
 EnemyFrames.FlagReturn   = ".* was returned to .*"
 EnemyFrames.UnknownUnitError = "Unknown unit."
 EnemyFrames.VersionWarningText  = "A newer version is available."
+EnemyFrames.AVName       = "Alterac Valley"
+EnemyFrames.ABNAme       = "Arathi Basin"
+EnemyFrames.WSGName      = "Warsong Gulch"
 
 -- Debug levels
 EnemyFrames.DebugEnabled.Zone           = false  -- Debug messages about loading screens
@@ -34,6 +37,18 @@ end
 
 function EnemyFrames.PrintError(msg)
     EnemyFrames.Print("Error: " .. msg, 1.0, 0.0, 0.0)
+end
+
+function EnemyFrames.InBattleground()
+    local zone = GetRealZoneText()
+    if zone == EnemyFrames.ABName
+    or zone == EnemyFrames.AVName
+    or zone == EnemyFrames.WSGName
+    then
+        return true
+    else
+        return false
+    end
 end
 
 function EnemyFrames.PrintDebug(msg, level)
@@ -162,8 +177,21 @@ function EnemyFrames.OnEvent(event)
         if arg1 == "EnemyFrames" then
             EnemyFrames.HandleAddonMessage(arg2, arg3, arg4)
         end
+    elseif event == "PARTY_MEMBERS_CHANGED" then
+        EnemyFrames.SendPartyVersionStatus()
     else
         EnemyFrames.PrintError("Unhandled event: " .. event)
+    end
+end
+
+-- Send your version info to party,raid,bg
+function EnemyFrames.SendPartyVersionStatus()
+    if GetNumRaidMembers() > 0 and GetNumBattlefieldScores() > 0 then
+        EnemyFrames.SendAddonMessage("VERSION:" .. EnemyFrames.Version .. ":" .. EnemyFrames.VersionName, "BATTLEGROUND")
+    elseif GetNumRaidMembers() > 0 then
+        EnemyFrames.SendAddonMessage("VERSION:" .. EnemyFrames.Version .. ":" .. EnemyFrames.VersionName, "RAID")
+    elseif GetNumPartyMembers() > 0 then
+        EnemyFrames.SendAddonMessage("VERSION:" .. EnemyFrames.Version .. ":" .. EnemyFrames.VersionName, "PARTY")
     end
 end
 
@@ -173,6 +201,7 @@ function EnemyFrames.OnLoad()
     this:RegisterEvent("CHAT_MSG_ADDON")
     this:RegisterEvent("PLAYER_LOGIN")
     this:RegisterEvent("PLAYER_ENTERING_WORLD")
+    this:RegisterEvent("PARTY_MEMBERS_CHANGED")
 
     EnemyFrames.OriginalUIErrorsFrameOnEvent = UIErrorsFrame_OnEvent
     UIErrorsFrame_OnEvent = EnemyFrames.HookedUIErrorsFrameOnEvent
