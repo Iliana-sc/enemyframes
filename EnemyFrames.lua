@@ -7,12 +7,14 @@ EnemyFrames.LastZone        = ""
 EnemyFrames.ZoneTimer       = nil
 EnemyFrames.MaxDisplayUnits = 10
 EnemyFrames.DebugChatFrame  = ChatFrame3
+EnemyFrames.HideUnknownUnitError = false
 
 -- Localized shit:
 EnemyFrames.FlagPicked   = "The ([^ ]+) [Ff]lag was picked up by ([^ ]+)!"
 EnemyFrames.FlagCaptured = "([^ ]+) captured the ([^ ]+) [Ff]lag!"
 EnemyFrames.FlagDropped  = "The ([^ ]+) [Ff]lag was dropped by ([^ ]+)!"
 EnemyFrames.FlagReturn   = ".* was returned to .*"
+EnemyFrames.UnknownUnitError = "Unknown unit."
 
 -- Debug levels
 EnemyFrames.DebugEnabled.Zone           = false  -- Debug messages about loading screens
@@ -33,6 +35,13 @@ function EnemyFrames.PrintDebug(msg, level)
     if EnemyFrames.DebugEnabled[level] == true then
         EnemyFrames.DebugChatFrame:AddMessage("|cffff8040EnemyFrames:|r DEBUG: " .. msg, 0.0, 1.0, 0.0)
     end
+end
+
+function EnemyFrames.HookedUIErrorsFrameOnEvent(event, msg)
+    if EnemyFrames.HideUnknownUnitError == true and msg == EnemyFrames.UnknownUnitError then
+        return
+    end
+    EnemyFrames.OriginalUIErrorsFrameOnEvent(event, msg)
 end
 
 -- Keep track of EFC in WSG
@@ -152,6 +161,9 @@ function EnemyFrames.OnLoad()
     this:RegisterEvent("CHAT_MSG_BG_SYSTEM_HORDE")
     this:RegisterEvent("PLAYER_LOGIN")
     this:RegisterEvent("PLAYER_ENTERING_WORLD")
+
+    EnemyFrames.OriginalUIErrorsFrameOnEvent = UIErrorsFrame_OnEvent
+    UIErrorsFrame_OnEvent = EnemyFrames.HookedUIErrorsFrameOnEvent
 end
 
 
@@ -290,6 +302,7 @@ end
 
 -- Target something, scan it, and go back to the original target
 function EnemyFrames.TargetScan(name)
+    EnemyFrames.HideUnknownUnitError = true
     local curname = nil
     if UnitExists("target") then
         curname = UnitName("target")
@@ -298,6 +311,7 @@ function EnemyFrames.TargetScan(name)
 
     if curname and curname == name then
         EnemyFrames.GatherUnitData("target")
+        EnemyFrames.HideUnknownUnitError = false
         return
     end
     
@@ -316,4 +330,6 @@ function EnemyFrames.TargetScan(name)
     elseif not curname then
         ClearTarget()
     end
+    
+    EnemyFrames.HideUnknownUnitError = false
 end
