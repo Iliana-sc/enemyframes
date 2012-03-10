@@ -16,7 +16,6 @@ EnemyFrames.VersionWarning  = false
 EnemyFrames.FlagPicked   = "The ([^ ]+) [Ff]lag was picked up by ([^ ]+)!"
 EnemyFrames.FlagCaptured = "([^ ]+) captured the ([^ ]+) [Ff]lag!"
 EnemyFrames.FlagDropped  = "The ([^ ]+) [Ff]lag was dropped by ([^ ]+)!"
-EnemyFrames.FlagReturn   = ".* was returned to .*"
 EnemyFrames.UnknownUnitError = "Unknown unit."
 EnemyFrames.VersionWarningText  = "A newer version is available."
 EnemyFrames.AVName       = "Alterac Valley"
@@ -100,11 +99,6 @@ function EnemyFrames.ParseFlagEvent(msg)
         return
     elseif spos ~= nil then
         return -- Only care about EFC
-    end
-
-    -- failed to parse this shit (ignore flag return messages)
-    if string.find(msg, EnemyFrames.FlagReturn) == nil then
-        EnemyFrames.PrintError("Failed to parse " .. event .. ": " .. msg)
     end
 end
 
