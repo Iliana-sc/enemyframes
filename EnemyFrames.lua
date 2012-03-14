@@ -18,6 +18,7 @@ EnemyFrames.FlagCaptured = "([^ ]+) captured the ([^ ]+) [Ff]lag!"
 EnemyFrames.FlagDropped  = "The ([^ ]+) [Ff]lag was dropped by ([^ ]+)!"
 EnemyFrames.UnknownUnitError = "Unknown unit."
 EnemyFrames.VersionWarningText  = "A newer version is available. You can download it at http://iliana-sc.github.com/enemyframes/"
+EnemyFrames.Greeting     = "Version " .. EnemyFrames.VersionName .. " Loaded."
 EnemyFrames.AVName       = "Alterac Valley"
 EnemyFrames.ABNAme       = "Arathi Basin"
 EnemyFrames.WSGName      = "Warsong Gulch"
@@ -196,7 +197,7 @@ function EnemyFrames.OnLoad()
     this:RegisterEvent("PLAYER_LOGIN")
     this:RegisterEvent("PLAYER_ENTERING_WORLD")
     this:RegisterEvent("PARTY_MEMBERS_CHANGED")
-
+    EnemyFrames.Print(EnemyFrames.Greeting)
     EnemyFrames.OriginalUIErrorsFrameOnEvent = UIErrorsFrame_OnEvent
     UIErrorsFrame_OnEvent = EnemyFrames.HookedUIErrorsFrameOnEvent
 end
