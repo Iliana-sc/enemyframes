@@ -388,18 +388,35 @@ end
 
 -- Decide which unit frames to show out of our data set
 -- For now its just a dumb function that takes the first MaxDisplayUnits
+-- Outside of bgs this also deletes the data of outdated frames (should
+-- really clean up all my onupdate code into one neat function)
 EnemyFrames.UnitsDisplayTimer = 5.0
 function EnemyFrames.UnitsDisplayUpdate(delta)
     EnemyFrames.UnitsDisplayTimer = EnemyFrames.UnitsDisplayTimer - delta
     if EnemyFrames.UnitsDisplayTimer <= 0 then
         EnemyFrames.PrintDebug("Deciding what units to display", "DisplayUpdate")
+        local inbg = EnemyFrames.InBattleground()
+        local now  = time()
+        local deleteme = {}
         local count = 1
         table.foreach(EnemyFrames.EnemyData, function(name,data)
             if count <= EFOptions.MaxFrames then
-                EnemyFrames.UnitNames["EnemyUnit" .. count] = name
-                count = count + 1
+                if inbg == true or now - data.Updated < 60 then
+                    EnemyFrames.UnitNames["EnemyUnit" .. count] = name
+                    count = count + 1
+                else
+                    EnemyFrames.PrintDebug("Not displaying " .. name, "DisplayUpdate")
+                    deleteme[name] = true
+                end
             end
         end)
+        table.foreach(deleteme, function(key, value)
+            EnemyFrames.EnemyData[key] = nil
+        end)
+        for i = count,EFOptions.MaxFrames do
+            EnemyFrames.UnitNames["EnemyUnit" .. i] = nil
+            EnemyFrames["EnemyUnit" .. i]:Hide()
+        end
         EnemyFrames.UnitsDisplayTimer = EnemyFrames.UnitsDisplayTimer + 5.0
     end
 end
