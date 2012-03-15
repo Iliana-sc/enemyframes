@@ -119,4 +119,142 @@
             </Layer>
         </Layers>
     </Frame>
+
+    <!-- Options frame -->
+    <Frame name="EnemyFramesOptions" parent="UIParent" hidden="true">
+        <Size>
+            <AbsDimension x="300" y="200" />
+        </Size>
+        <Anchors>
+            <Anchor point="CENTER" />
+        </Anchors>
+        <Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
+            <BackgroundInsets>
+                <AbsInset left="11" right="12" top="12" bottom="11" />
+            </BackgroundInsets>
+            <TileSize>
+                <AbsValue val="32" />
+            </TileSize>
+            <EdgeSize>
+                <AbsValue val="32" />
+            </EdgeSize>
+        </Backdrop>
+        <!-- Header bar & text -->
+        <Layers>
+            <Layer level="ARTWORK">
+                <Texture name="$parentHeader" file="Interface\DialogFrame\UI-DialogBox-Header">
+                    <Size>
+                        <AbsDimension x="350" y="64"/>
+                    </Size>
+                    <Anchors>
+                        <Anchor point="TOP">
+                            <Offset>
+                                <AbsDimension x="0" y="12"/>
+                            </Offset>
+                        </Anchor>
+                    </Anchors>
+                </Texture>
+                <FontString name="$parentTitle" inherits="GameFontNormal" text="EnemyFrames Options">
+                    <Anchors>
+                        <Anchor point="TOP">
+                            <Offset>
+                                <AbsDimension x="0" y="-1"/>
+                            </Offset>
+                        </Anchor>
+                    </Anchors>
+                </FontString>
+            </Layer>
+		</Layers>
+		<Frames>
+            <!-- Close button -->
+            <Button name="$parentCloseButton" inherits="UIPanelCloseButton">
+                <Anchors>
+                    <Anchor point="TOPRIGHT">
+                        <Offset>
+                            <AbsDimension x="-5" y="-5" />
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+            </Button>
+
+            <!-- Scan Targets -->
+			<CheckButton name="$parentScanTargets" inherits="OptionsCheckButtonTemplate" enable="false">
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="25" y="-35"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						getglobal(this:GetName().."Text"):SetText(EnemyFrames.OptionScanTargets);
+					</OnLoad>
+					<OnClick>
+                        if this:GetChecked() ~= nil then
+                            EFOptions.ScanTargets = true
+                        else
+                            EFOptions.ScanTargets = false
+                        end
+					</OnClick>
+                    <OnEnter>
+                        GameTooltip:SetOwner(this, "ANCHOR_RIGHT")
+                        GameTooltip:SetText(EnemyFrames.OptionScanTargetsTip, nil, nil, nil, nil, 1)
+                        GameTooltip:Show()
+                    </OnEnter>
+                    <OnLeave>
+                        GameTooltip:Hide()
+                    </OnLeave>
+				</Scripts>
+			</CheckButton>
+            
+            <!-- # of frames -->
+            <Slider name="$parentMaxFrames" inherits="OptionsSliderTemplate">
+				<Size>
+					<AbsDimension x="200" y="16"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOP">
+						<Offset>
+							<AbsDimension x="0" y="-80" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						getglobal(this:GetName().."Text"):SetText(EnemyFrames.OptionMaxFrames);
+						getglobal(this:GetName().."High"):SetText(tostring(EnemyFrames.MaxDisplayUnits));
+						getglobal(this:GetName().."Low"):SetText("5");
+						this:SetMinMaxValues(5,EnemyFrames.MaxDisplayUnits);
+						this:SetValueStep(1);
+					</OnLoad>
+					<OnValueChanged>
+						getglobal(this:GetName().."Value"):SetText(this:GetValue());
+                        EnemyFrames.MaxFramesChanged(this:GetValue())
+					</OnValueChanged>
+                    <OnEnter>
+                        GameTooltip:SetOwner(this, "ANCHOR_RIGHT")
+                        GameTooltip:SetText(EnemyFrames.OptionMaxFramesTip, nil, nil, nil, nil, 1)
+                        GameTooltip:Show()
+                    </OnEnter>
+                    <OnLeave>
+                        GameTooltip:Hide()
+                    </OnLeave>
+				</Scripts>
+                <Layers>
+                    <Layer level="ARTWORK">
+                        <FontString name="$parentValue" inherits="GameFontHighlightSmall" text="VALUE">
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativePoint="BOTTOM">
+                                    <Offset>
+                                        <AbsDimension x="0" y="3"/>
+                                    </Offset>
+                                </Anchor>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+			</Slider>
+        </Frames>
+    </Frame>
 </Ui>

@@ -5,7 +5,7 @@ EnemyFrames.EnemyData       = {}    -- playername => playerdata map
 EnemyFrames.UnitNames       = {}    -- enemyframeunitname => playername map
 EnemyFrames.LastZone        = ""
 EnemyFrames.ZoneTimer       = nil
-EnemyFrames.MaxDisplayUnits = 10
+EnemyFrames.MaxDisplayUnits = 40
 EnemyFrames.DebugChatFrame  = ChatFrame3
 EnemyFrames.HideUnknownUnitError = false
 EnemyFrames.VersionName     = "Alpha 4"
@@ -18,10 +18,17 @@ EnemyFrames.FlagCaptured = "([^ ]+) captured the ([^ ]+) [Ff]lag!"
 EnemyFrames.FlagDropped  = "The ([^ ]+) [Ff]lag was dropped by ([^ ]+)!"
 EnemyFrames.UnknownUnitError = "Unknown unit."
 EnemyFrames.VersionWarningText  = "A newer version is available. You can download it at http://iliana-sc.github.com/enemyframes/"
-EnemyFrames.Greeting     = "Version " .. EnemyFrames.VersionName .. " Loaded."
+EnemyFrames.Greeting     = "Version " .. EnemyFrames.VersionName .. " Loaded. Use /enemyframes for options."
 EnemyFrames.AVName       = "Alterac Valley"
 EnemyFrames.ABNAme       = "Arathi Basin"
 EnemyFrames.WSGName      = "Warsong Gulch"
+
+EnemyFrames.OptionTitle             = "EnemyFrames Options"
+EnemyFrames.OptionScanTargets       = "Scan outdated enemies"
+EnemyFrames.OptionScanTargetsTip    = "If enabled EnemyFrames will try to briefly target enemies it does not have data about. This will make the health and mana bars much more accurate."
+EnemyFrames.OptionMaxFrames         = "Number of frames"
+EnemyFrames.OptionMaxFramesTip      = "Maximum number of enemy frames displayed at a time."
+
 
 -- Debug levels
 EnemyFrames.DebugEnabled.Zone           = false  -- Debug messages about loading screens
@@ -30,6 +37,7 @@ EnemyFrames.DebugEnabled.TargetData     = false  -- Debug messages for getting d
 EnemyFrames.DebugEnabled.DisplayUpdate  = false  -- Debug messages for when a frame is updated visually
 EnemyFrames.DebugEnabled.TargetScan     = false  -- Debug messages for actively trying to target units to scan them
 EnemyFrames.DebugEnabled.AddonMessage   = false  -- Debug messages with all sent and received addon messages
+EnemyFrames.DebugEnabled.SavedVariables = false  -- Debug messages about initializing saved variables
 
 function EnemyFrames.Print(msg, r, g, b)
     DEFAULT_CHAT_FRAME:AddMessage("|cffff8040EnemyFrames:|r " .. msg, r, g, b)
@@ -161,6 +169,23 @@ function EnemyFrames.Init()
     EnemyFrames.SendAddonMessage("VERSION:" .. EnemyFrames.Version .. ":" .. EnemyFrames.VersionName, "GUILD")
 end
 
+function EnemyFrames.OnAddonLoaded()
+    if EFOptions == nil then
+        EnemyFrames.PrintDebug("Initializing options table for the first time", "SavedVariables")
+        EFOptions = {}
+    end
+    if EFOptions.ScanTargets == nil then
+        EnemyFrames.PrintDebug("Initializig EFOptions.ScanTargets to true", "SavedVariables")
+        EFOptions.ScanTargets = true
+    end
+    EnemyFramesOptionsScanTargets:SetChecked(EFOptions.ScanTargets)
+    if EFOptions.MaxFrames == nil then
+        EnemyFrames.PrintDebug("Initializig EFOptions.MaxFrames to 10", "SavedVariables")
+        EFOptions.MaxFrames = 10
+    end
+    EnemyFramesOptionsMaxFrames:SetValue(EFOptions.MaxFrames)
+end
+
 function EnemyFrames.OnEvent(event)
     if event == "CHAT_MSG_BG_SYSTEM_ALLIANCE" or event == "CHAT_MSG_BG_SYSTEM_HORDE" then
         EnemyFrames.ParseFlagEvent(arg1)
@@ -171,6 +196,10 @@ function EnemyFrames.OnEvent(event)
     elseif event == "CHAT_MSG_ADDON" then
         if arg1 == "EnemyFrames" then
             EnemyFrames.HandleAddonMessage(arg2, arg3, arg4)
+        end
+    elseif event == "ADDON_LOADED" then
+        if arg1 == "EnemyFrames" then
+            EnemyFrames.OnAddonLoaded()
         end
     elseif event == "PARTY_MEMBERS_CHANGED" then
         EnemyFrames.SendPartyVersionStatus()
@@ -195,11 +224,16 @@ function EnemyFrames.OnLoad()
     this:RegisterEvent("CHAT_MSG_BG_SYSTEM_HORDE")
     this:RegisterEvent("CHAT_MSG_ADDON")
     this:RegisterEvent("PLAYER_LOGIN")
+    this:RegisterEvent("ADDON_LOADED")
     this:RegisterEvent("PLAYER_ENTERING_WORLD")
     this:RegisterEvent("PARTY_MEMBERS_CHANGED")
     EnemyFrames.Print(EnemyFrames.Greeting)
     EnemyFrames.OriginalUIErrorsFrameOnEvent = UIErrorsFrame_OnEvent
     UIErrorsFrame_OnEvent = EnemyFrames.HookedUIErrorsFrameOnEvent
+
+    SlashCmdList["ENEMYFRAMES"] = function(msg) EnemyFramesOptions:Show() end
+    SLASH_ENEMYFRAMES1 = "/enemyframes"
+    SLASH_ENEMYFRAMES2 = "/eframes"
 end
 
 function EnemyFrames.HandleAddonMessage(msg, channel, sender)
@@ -302,7 +336,7 @@ function EnemyFrames.UpdateEnemyFrame(unit, name)
     EnemyFrames.PrintDebug("Updating" .. unit .. ": " .. name, "DisplayUpdate")
 
     -- If the frame wasnt scanned for 5 seconds we try to scan it
-    if time() - UnitData.LastScan > 5 then
+    if EFOptions.ScanTargets == true and time() - UnitData.LastScan > 5 then
         UnitData.LastScan = time()
         EnemyFrames.TargetScan(name)
     end
@@ -345,12 +379,26 @@ function EnemyFrames.UnitsDisplayUpdate(delta)
         EnemyFrames.PrintDebug("Deciding what units to display", "DisplayUpdate")
         local count = 1
         table.foreach(EnemyFrames.EnemyData, function(name,data)
-            if count <= EnemyFrames.MaxDisplayUnits then
+            if count <= EFOptions.MaxFrames then
                 EnemyFrames.UnitNames["EnemyUnit" .. count] = name
                 count = count + 1
             end
         end)
         EnemyFrames.UnitsDisplayTimer = EnemyFrames.UnitsDisplayTimer + 5.0
+    end
+end
+
+-- Option MaxFrames updated, we might need to hide some frames if the value was decreased
+function EnemyFrames.MaxFramesChanged(num)
+    if EFOptions.MaxFrames <= num then
+        EFOptions.MaxFrames = num
+    else
+        -- Loop over all frames that need to be hidden and delete their attached data
+        for i = (num+1),EFOptions.MaxFrames do
+            EnemyFrames.UnitNames["EnemyUnit" .. i] = nil
+            EnemyFrames["EnemyUnit" .. i]:Hide();
+        end
+        EFOptions.MaxFrames = num
     end
 end
 
