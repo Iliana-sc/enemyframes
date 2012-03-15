@@ -8,8 +8,8 @@ EnemyFrames.ZoneTimer       = nil
 EnemyFrames.MaxDisplayUnits = 40
 EnemyFrames.DebugChatFrame  = ChatFrame3
 EnemyFrames.HideUnknownUnitError = false
-EnemyFrames.VersionName     = "Alpha 4"
-EnemyFrames.Version         = 4         -- Increment for every release
+EnemyFrames.VersionName     = "Alpha 5"
+EnemyFrames.Version         = 5         -- Increment for every release
 EnemyFrames.VersionWarning  = false
 
 -- Localized shit:
