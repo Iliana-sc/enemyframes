@@ -207,6 +207,37 @@
                     </OnLeave>
 				</Scripts>
 			</CheckButton>
+
+            <!-- BG Auto Leave -->
+			<CheckButton name="$parentAutoLeave" inherits="OptionsCheckButtonTemplate" enable="false">
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="25" y="-65"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						getglobal(this:GetName().."Text"):SetText(EnemyFrames.OptionAutoLeave);
+					</OnLoad>
+					<OnClick>
+                        if this:GetChecked() ~= nil then
+                            EFOptions.AutoLeave = true
+                        else
+                            EFOptions.AutoLeave = false
+                        end
+					</OnClick>
+                    <OnEnter>
+                        GameTooltip:SetOwner(this, "ANCHOR_RIGHT")
+                        GameTooltip:SetText(EnemyFrames.OptionAutoLeaveTip, nil, nil, nil, nil, 1)
+                        GameTooltip:Show()
+                    </OnEnter>
+                    <OnLeave>
+                        GameTooltip:Hide()
+                    </OnLeave>
+				</Scripts>
+			</CheckButton>
             
             <!-- # of frames -->
             <Slider name="$parentMaxFrames" inherits="OptionsSliderTemplate">
@@ -216,7 +247,7 @@
 				<Anchors>
 					<Anchor point="TOP">
 						<Offset>
-							<AbsDimension x="0" y="-80" />
+							<AbsDimension x="0" y="-110" />
 						</Offset>
 					</Anchor>
 				</Anchors>

@@ -28,7 +28,8 @@ EnemyFrames.OptionScanTargets       = "Scan outdated enemies"
 EnemyFrames.OptionScanTargetsTip    = "If enabled EnemyFrames will try to briefly target enemies it does not have data about. This will make the health and mana bars much more accurate."
 EnemyFrames.OptionMaxFrames         = "Number of frames"
 EnemyFrames.OptionMaxFramesTip      = "Maximum number of enemy frames displayed at a time."
-
+EnemyFrames.OptionAutoLeave         = "Auto leave battlegrounds."
+EnemyFrames.OptionAutoLeaveTip      = "If enabled you will automatically leave the battleground after it has ended."
 
 -- Debug levels
 EnemyFrames.DebugEnabled.Zone           = false  -- Debug messages about loading screens
@@ -38,6 +39,7 @@ EnemyFrames.DebugEnabled.DisplayUpdate  = false  -- Debug messages for when a fr
 EnemyFrames.DebugEnabled.TargetScan     = false  -- Debug messages for actively trying to target units to scan them
 EnemyFrames.DebugEnabled.AddonMessage   = false  -- Debug messages with all sent and received addon messages
 EnemyFrames.DebugEnabled.SavedVariables = false  -- Debug messages about initializing saved variables
+EnemyFrames.DebugEnabled.AutoLeave      = false  -- Debug messages about auto leaving bgs
 
 function EnemyFrames.Print(msg, r, g, b)
     DEFAULT_CHAT_FRAME:AddMessage("|cffff8040EnemyFrames:|r " .. msg, r, g, b)
@@ -175,15 +177,20 @@ function EnemyFrames.OnAddonLoaded()
         EFOptions = {}
     end
     if EFOptions.ScanTargets == nil then
-        EnemyFrames.PrintDebug("Initializig EFOptions.ScanTargets to true", "SavedVariables")
+        EnemyFrames.PrintDebug("Initializing EFOptions.ScanTargets to true", "SavedVariables")
         EFOptions.ScanTargets = true
     end
     EnemyFramesOptionsScanTargets:SetChecked(EFOptions.ScanTargets)
     if EFOptions.MaxFrames == nil then
-        EnemyFrames.PrintDebug("Initializig EFOptions.MaxFrames to 10", "SavedVariables")
+        EnemyFrames.PrintDebug("Initializing EFOptions.MaxFrames to 10", "SavedVariables")
         EFOptions.MaxFrames = 10
     end
     EnemyFramesOptionsMaxFrames:SetValue(EFOptions.MaxFrames)
+    if EFOptions.AutoLeave == nil then
+        EnemyFrames.PrintDebug("Initializing EFOptions.AutoLeave to false", "SavedVariables")
+        EFOptions.AutoLeave = false
+    end
+    EnemyFramesOptionsAutoLeave:SetChecked(EFOptions.AutoLeave)
 end
 
 function EnemyFrames.OnEvent(event)
@@ -200,6 +207,14 @@ function EnemyFrames.OnEvent(event)
     elseif event == "ADDON_LOADED" then
         if arg1 == "EnemyFrames" then
             EnemyFrames.OnAddonLoaded()
+        end
+    elseif event == "UPDATE_BATTLEFIELD_STATUS" then
+        -- Tries to leave before the bg ended but this is impossible so /care
+        if EFOptions.AutoLeave == true then
+            EnemyFrames.PrintDebug("Update bg status event... leaving", "AutoLeave")
+            LeaveBattlefield()
+        else
+            EnemyFrames.PrintDebug("Update bg status event... ignoring", "AutoLeave")
         end
     elseif event == "PARTY_MEMBERS_CHANGED" then
         EnemyFrames.SendPartyVersionStatus()
@@ -227,6 +242,7 @@ function EnemyFrames.OnLoad()
     this:RegisterEvent("ADDON_LOADED")
     this:RegisterEvent("PLAYER_ENTERING_WORLD")
     this:RegisterEvent("PARTY_MEMBERS_CHANGED")
+    this:RegisterEvent("UPDATE_BATTLEFIELD_STATUS")
     EnemyFrames.Print(EnemyFrames.Greeting)
     EnemyFrames.OriginalUIErrorsFrameOnEvent = UIErrorsFrame_OnEvent
     UIErrorsFrame_OnEvent = EnemyFrames.HookedUIErrorsFrameOnEvent
