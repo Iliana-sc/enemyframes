@@ -18,78 +18,115 @@
             </OnUpdate>
 		</Scripts>
 	</Frame>
-
+    
+    <FontString name="EnemyFramesFont" inherits="MasterFont" font="Interface\AddOns\EnemyFrames\gfx\yabf.ttf" virtual="true">
+        <FontHeight>
+            <AbsValue val="13" />
+        </FontHeight>
+    </FontString>
+    
     <!-- Individual Units -->
-    <Button name="EnemyUnitTemplate" virtual="true" hidden="true">
+    <Frame name="EnemyUnitTemplate" parent="UIParent" hidden="true" virtual="true">
         <Size>
-            <AbsDimension x="100" y="40" />
+            <AbsDimension x="140" y="25" />
         </Size>
-        <Backdrop bgFile="Interface\Tooltips\UI-Tooltip-Background" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
-			<EdgeSize>
-				<AbsValue val="9"/>
-			</EdgeSize>
-			<TileSize>
-				<AbsValue val="16" />
-			</TileSize>
-			<BackgroundInsets>
-				<AbsInset left="3" right="3" top="3" bottom="3"/>
-			</BackgroundInsets>
-		</Backdrop>
-        <Layers>
-            <Layer level="OVERLAY">
-                <!-- Name -->
-                <FontString name="$parentPlayerName" inherits="GameFontNormalSmall" text="PLAYERNAME">
-                    <Anchors>
-                        <Anchor point="TOP">
-                            <Offset>
-                                <AbsDimension x="0" y="-2" />
-                            </Offset>
-                        </Anchor>
-                    </Anchors>
-                </FontString>
-            </Layer>
-        </Layers>
-		<Frames>
-            <!-- HP bar -->
-			<StatusBar name="$parentHealth">
-				<Size>
-					<AbsDimension x="94" y="17"/>
-				</Size>
-				<Anchors>
-					<Anchor point="TOP">
-						<Offset>
-							<AbsDimension x="0" y="-13"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-				<BarTexture file="Interface\TargetingFrame\UI-StatusBar"/>
-				<BarColor r="0.0" g="1.0" b="0.0"/>
-			</StatusBar>
-            <!-- Power Bar -->
-			<StatusBar name="$parentPower">
-				<Size>
-					<AbsDimension x="94" y="7"/>
-				</Size>
-				<Anchors>
-					<Anchor point="TOP">
-						<Offset>
-							<AbsDimension x="0" y="-30"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-				<BarTexture file="Interface\TargetingFrame\UI-StatusBar"/>
-			</StatusBar>
-		</Frames>
         <Scripts>
             <OnLoad>
-                this:RegisterForClicks("LeftButtonUp")
-                this:SetBackdropColor(0.0, 0.0, 0.0)
+                this:RegisterForClicks("LeftButton")
             </OnLoad>
             <OnClick>
                 EnemyFrames.UnitClickEvent(this)
             </OnClick>
         </Scripts>
-    </Button>
+        <Anchors>
+            <Anchor point="CENTER" />
+        </Anchors>
+        <Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" tile="true">
+            <TileSize>
+                <AbsValue val="32" />
+            </TileSize>
+        </Backdrop>
+        <Scripts>
+            <OnLoad>
+                this:SetBackdropColor(0.0, 0.0, 0.0, 0.7)
+            </OnLoad>
+        </Scripts>
+        <Layers>
+            <Layer level="OVERLAY">
+                <!-- WSG Flag Icon -->
+                <Texture name="$parentFlag" file="Interface\Icons\INV_BannerPVP_02" hidden="true">
+                    <Size>
+                        <AbsDimension x="24" y="24"/>
+                    </Size>
+                    <Anchors>
+                        <Anchor point="RIGHT" relativepoint="LEFT">
+                            <Offset>
+                                <AbsDimension x="0" y="0"/>
+                            </Offset>
+                        </Anchor>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Frames>
+            <!-- HP bar -->
+			<StatusBar name="$parentHealth">
+				<Size>
+					<AbsDimension x="137" y="15"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOP">
+						<Offset>
+							<AbsDimension x="0" y="-1"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<BarTexture file="Interface\AddOns\EnemyFrames\gfx\BantoBar"/>
+				<BarColor r="0.0" g="1.0" b="0.0"/>
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <!-- Name -->
+                        <FontString name="$parentName" inherits="EnemyFramesFont" text="Player">
+                            <Anchors>
+                                <Anchor point="LEFT">
+                                    <Offset>
+                                        <AbsDimension x="3" y="0" />
+                                    </Offset>
+                                </Anchor>
+                            </Anchors>
+                        </FontString>
+                        <!-- % HP -->
+                        <FontString name="$parentPct" inherits="EnemyFramesFont" text="100%">
+                            <Anchors>
+                                <Anchor point="RIGHT">
+                                    <Offset>
+                                        <AbsDimension x="-3" y="0" />
+                                    </Offset>
+                                </Anchor>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+			</StatusBar>
+
+            <!-- Power Bar -->
+			<StatusBar name="$parentPower">
+				<Size>
+					<AbsDimension x="137" y="6"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOP">
+						<Offset>
+							<AbsDimension x="0" y="-17"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<BarTexture file="Interface\AddOns\EnemyFrames\gfx\BantoBar"/>
+				<BarColor r="0.0" g="0.0" b="1.0"/>
+			</StatusBar>
+        </Frames>
+    </Frame>
+
     
     <!-- Dragable masterframe to contain the units -->
     <Frame name="EnemyUnits" parent="UIParent" hidden="false" movable="true">

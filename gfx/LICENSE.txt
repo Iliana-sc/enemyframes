@@ -1,0 +1,2 @@
+I lifted this from the ag_unitframes addon and I honestly have no
+idea at all about the license.

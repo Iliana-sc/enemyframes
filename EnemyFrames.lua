@@ -11,6 +11,11 @@ EnemyFrames.HideUnknownUnitError = false
 EnemyFrames.VersionName     = "Alpha 5"
 EnemyFrames.Version         = 5         -- Increment for every release
 EnemyFrames.VersionWarning  = false
+EnemyFrames.PowerColor      = {[0] = {r=0.28, g=0.52, b=0.84}, -- Mana
+                               [1] = {r=0.88, g=0.17, b=0.29}, -- Rage
+                               [2] = {r=1.00, g=0.82, b=0.00}, -- Focus
+                               [3] = {r=1.00, g=0.86, b=0.09}, -- Energy
+                               [4] = {r=0.00, g=1.00, b=1.00}} -- Happiness
 
 -- Localized shit:
 EnemyFrames.FlagPicked   = "The ([^ ]+) [Ff]lag was picked up by ([^ ]+)!"
@@ -161,11 +166,19 @@ end
 
 -- Initialize the enemy unit frames when the addon is first loaded
 function EnemyFrames.Init()
+    local FlagIcon
+    if UnitFactionGroup("player") == "Alliance" then
+        FlagIcon = "Interface\\Icons\\INV_BannerPVP_02"
+    else
+        FlagIcon = "Interface\\Icons\\INV_BannerPVP_01"
+    end
+
     for i = 1, EnemyFrames.MaxDisplayUnits do
-        local yoffset = math.mod(i-1, 5) * -39 - 18
-        local xoffset = math.floor((i-1) / 5) * 110
+        local yoffset = (i - 1) * -26 - 18
+        local xoffset = 0
         EnemyFrames["EnemyUnit" .. i] = CreateFrame("Button", "EnemyUnit" .. i, EnemyUnits, "EnemyUnitTemplate");
         EnemyFrames["EnemyUnit" .. i]:SetPoint("TOPLEFT", EnemyUnits, "TOPLEFT", xoffset, yoffset);
+        getglobal("EnemyUnit" .. i .. "Flag"):SetTexture(FlagIcon)
     end
 
     EnemyFrames.SendAddonMessage("VERSION:" .. EnemyFrames.Version .. ":" .. EnemyFrames.VersionName, "GUILD")
@@ -358,21 +371,22 @@ function EnemyFrames.UpdateEnemyFrame(unit, name)
     end
 
     local classcolor = RAID_CLASS_COLORS[string.upper(UnitData.Class)]
-    local manacolor = ManaBarColor[UnitData.PowerType]
+    local manacolor = EnemyFrames.PowerColor[UnitData.PowerType]
 
-    getglobal(unit .. "PlayerName"):SetTextColor(classcolor.r, classcolor.g, classcolor.b)
+    getglobal(unit .. "Health"):SetStatusBarColor(classcolor.r, classcolor.g, classcolor.b)
     getglobal(unit .. "Health"):SetMinMaxValues(0, UnitData.HealthMax)
     getglobal(unit .. "Health"):SetValue(UnitData.Health)
-    getglobal(unit .. "PlayerName"):SetText(name)
+    getglobal(unit .. "HealthName"):SetText(name)
+    getglobal(unit .. "HealthPct"):SetText(math.floor(UnitData.Health/UnitData.HealthMax*100) .. "%")
     getglobal(unit .. "Power"):SetStatusBarColor(manacolor.r, manacolor.g, manacolor.b)
     getglobal(unit .. "Power"):SetMinMaxValues(0, UnitData.PowerMax)
     getglobal(unit .. "Power"):SetValue(UnitData.Power)
 
-    -- Flag carriers get to be red
+    -- Flag carriers get a nice icon
     if UnitData.Flag == true then
-        getglobal(unit):SetBackdropColor(1.0, 0.0, 0.0)
+        getglobal(unit .. "Flag"):Show()
     else
-        getglobal(unit):SetBackdropColor(0.0, 0.0, 0.0)
+        getglobal(unit .. "Flag"):Hide()
     end
 
     -- Frames that aren't updated get phased out
