@@ -35,6 +35,9 @@ EnemyFrames.OptionMaxFrames         = "Number of frames"
 EnemyFrames.OptionMaxFramesTip      = "Maximum number of enemy frames displayed at a time."
 EnemyFrames.OptionAutoLeave         = "Auto leave battlegrounds."
 EnemyFrames.OptionAutoLeaveTip      = "If enabled you will automatically leave the battleground after it has ended."
+EnemyFrames.OptionScale             = "Scale"
+EnemyFrames.OptionScaleTip          = "Increase or decrease the size of the enemy frames"
+
 
 -- Debug levels
 EnemyFrames.DebugEnabled.Zone           = false  -- Debug messages about loading screens
@@ -172,7 +175,7 @@ function EnemyFrames.Init()
     else
         FlagIcon = "Interface\\Icons\\INV_BannerPVP_01"
     end
-
+    
     for i = 1, EnemyFrames.MaxDisplayUnits do
         local yoffset = (i - 1) * -26 - 18
         local xoffset = 0
@@ -204,6 +207,12 @@ function EnemyFrames.OnAddonLoaded()
         EFOptions.AutoLeave = false
     end
     EnemyFramesOptionsAutoLeave:SetChecked(EFOptions.AutoLeave)
+    if EFOptions.Scale == nil then
+        EnemyFrames.PrintDebug("Initializing EFOptions.Scale to 100", "SavedVariables")
+        EFOptions.Scale = 100
+    end
+    EnemyFramesOptionsScale:SetValue(EFOptions.Scale)
+    EnemyUnits:SetScale(EFOptions.Scale / 100)
 end
 
 function EnemyFrames.OnEvent(event)

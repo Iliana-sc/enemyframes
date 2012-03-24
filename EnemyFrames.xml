@@ -323,6 +323,55 @@
                     </Layer>
                 </Layers>
 			</Slider>
+            
+            <!-- Scale of frames -->
+            <Slider name="$parentScale" inherits="OptionsSliderTemplate">
+				<Size>
+					<AbsDimension x="200" y="16"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOP">
+						<Offset>
+							<AbsDimension x="0" y="-160" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						getglobal(this:GetName().."Text"):SetText(EnemyFrames.OptionScale);
+						getglobal(this:GetName().."High"):SetText("250%");
+						getglobal(this:GetName().."Low"):SetText("10%");
+						this:SetMinMaxValues(10, 250);
+						this:SetValueStep(1);
+					</OnLoad>
+					<OnValueChanged>
+						getglobal(this:GetName().."Value"):SetText(this:GetValue().. "%");
+                        EFOptions.Scale = this:GetValue()
+                        EnemyUnits:SetScale(this:GetValue() / 100)
+					</OnValueChanged>
+                    <OnEnter>
+                        GameTooltip:SetOwner(this, "ANCHOR_RIGHT")
+                        GameTooltip:SetText(EnemyFrames.OptionScaleTip, nil, nil, nil, nil, 1)
+                        GameTooltip:Show()
+                    </OnEnter>
+                    <OnLeave>
+                        GameTooltip:Hide()
+                    </OnLeave>
+				</Scripts>
+                <Layers>
+                    <Layer level="ARTWORK">
+                        <FontString name="$parentValue" inherits="GameFontHighlightSmall" text="VALUE">
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativePoint="BOTTOM">
+                                    <Offset>
+                                        <AbsDimension x="0" y="3"/>
+                                    </Offset>
+                                </Anchor>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+			</Slider>
         </Frames>
     </Frame>
 </Ui>
