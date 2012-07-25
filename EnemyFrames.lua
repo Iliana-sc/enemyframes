@@ -8,8 +8,8 @@ EnemyFrames.ZoneTimer       = nil
 EnemyFrames.MaxDisplayUnits = 40
 EnemyFrames.DebugChatFrame  = ChatFrame3
 EnemyFrames.HideUnknownUnitError = false
-EnemyFrames.VersionName     = "Alpha 6"
-EnemyFrames.Version         = 6         -- Increment for every release
+EnemyFrames.VersionName     = "Alpha 7"
+EnemyFrames.Version         = 7         -- Increment for every release
 EnemyFrames.VersionWarning  = false
 EnemyFrames.PowerColor      = {[0] = {r=0.28, g=0.52, b=0.84}, -- Mana
                                [1] = {r=0.88, g=0.17, b=0.29}, -- Rage
@@ -204,7 +204,7 @@ function EnemyFrames.OnAddonLoaded()
     EnemyFramesOptionsMaxFrames:SetValue(EFOptions.MaxFrames)
     if EFOptions.AutoLeave == nil then
         EnemyFrames.PrintDebug("Initializing EFOptions.AutoLeave to false", "SavedVariables")
-        EFOptions.AutoLeave = false
+        EFOptions.AutoLeave = true
     end
     EnemyFramesOptionsAutoLeave:SetChecked(EFOptions.AutoLeave)
     if EFOptions.Scale == nil then
